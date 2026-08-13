@@ -23,6 +23,13 @@ def main() -> None:
     predict.add_argument("--limit", type=int, default=None,
                          help="max games shown")
 
+    pre = sub.add_parser("preseason", help="exhibition board for preseason games "
+                         "(never used for training)")
+    pre.add_argument("--fetch", action="store_true",
+                     help="pull the live slate from ESPN (needs an open network)")
+    pre.add_argument("--year", type=int, default=None, help="preseason year")
+    pre.add_argument("--limit", type=int, default=None, help="max games shown")
+
     track = sub.add_parser("track", help="log picks and score them vs. results")
     track_sub = track.add_subparsers(dest="track_command", required=True)
     track_sub.add_parser("record", help="log picks for the upcoming slate")
@@ -48,6 +55,12 @@ def main() -> None:
             predict_matchup(bundle, args.home, args.away)
         else:
             predict_upcoming(bundle, args.limit, args.week)
+    elif args.command == "preseason":
+        from .preseason import run
+        from .train import load_bundle
+        from .config import PREDICT_SEASON
+        run(load_bundle(), fetch=args.fetch,
+            year=args.year or PREDICT_SEASON, limit=args.limit)
     elif args.command == "track":
         from . import track as tracker
         if args.track_command == "record":

@@ -236,14 +236,31 @@ never sees its own result — no cheating).
 
 ## 10. About preseason
 
-**This model does not predict preseason games, and it can't** — nflverse
-carries no preseason data at all (both the schedule and the play-by-play are
-regular-season + playoffs only).
+**Preseason is never used to train the model — that rule is firm.** In
+preseason the starters barely play, so the results are noise; training on them
+would only make the model worse. And nflverse carries no preseason data anyway
+(its schedule and play-by-play are regular-season + playoffs only).
 
-That's the right call anyway: preseason results are basically noise for judging
-real team strength (starters barely play), so training on them would only make
-the model worse. Preseason is the time to get this pipeline set up and tested —
-then the model goes to work once the regular season kicks off.
+But there's an **exhibition mode** so you can still click through a preseason
+slate in the same board — handy for kicking the tires before the real season.
+It reuses the already-trained model (it never feeds preseason back into
+training) and, since the players who matter are resting, the picks lean almost
+entirely on carried-over Elo and last season's form. **Treat them as a UI
+rehearsal, not a forecast.**
+
+```bash
+# Option A — pull the live slate from ESPN (works on a normal home network):
+python -m nfl_predictor preseason --fetch
+
+# Option B — no network access to ESPN? Fill in the matchups yourself.
+python -m nfl_predictor preseason          # creates data/preseason_games.csv
+#   ...open that file, type in this week's games (away_team, home_team, date),
+#   then run it again:
+python -m nfl_predictor preseason
+```
+
+Output looks just like the regular board, with a `PRESEASON · EXHIBITION MODE`
+banner on top. Nothing here touches `train`, `fetch`, or your season tracking.
 
 ## 11. Troubleshooting
 
