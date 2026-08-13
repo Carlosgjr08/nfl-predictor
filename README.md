@@ -45,7 +45,7 @@ MON 8:15P  DEN @ KC       KC -3.0      Chiefs          56.7%  ██████
 Open a terminal in this folder and run:
 
 ```bash
-# 1. create an isolated environment so this project's packages stay separate
+# 1. create an isolated environment (keeps this project separate)
 python3 -m venv .venv
 source .venv/bin/activate         # Windows: .venv\Scripts\activate
 
@@ -55,6 +55,11 @@ pip install -r requirements.txt
 
 You only do this once. Every time you come back, just re-run
 `source .venv/bin/activate` first.
+
+> **Tip:** run the commands **one line at a time**, and skip the grey `#`
+> comment lines — they're just notes for you, not commands. If your prompt ever
+> changes to `quote>` or `dquote>` and seems stuck, press **`Control + C`** to
+> cancel and get back to the normal prompt.
 
 ## 3. Quick start (3 commands)
 
@@ -95,7 +100,7 @@ model is saved to `models/` (recreated any time you re-run `train`).
 
 ### `predict` — get the picks
 ```bash
-python -m nfl_predictor predict --week 1        # one week's slate
+python -m nfl_predictor predict --week 1        # one week of games
 python -m nfl_predictor predict --limit 16      # the next 16 upcoming games
 python -m nfl_predictor predict --home CIN --away DET   # a single matchup
 ```
@@ -103,7 +108,7 @@ Prints the picks board. Team names are abbreviations (`CIN`, `KC`, `SF`…).
 
 ### `track` — keep score over the season
 ```bash
-python -m nfl_predictor track record                        # log this week's picks
+python -m nfl_predictor track record                        # log the upcoming picks
 python -m nfl_predictor track result --home KC --away DEN --score 24-17
 python -m nfl_predictor track board                         # refresh the scoreboard
 ```
@@ -129,9 +134,9 @@ Once real games start, do this once a week:
 
 ```bash
 source .venv/bin/activate
-python -m nfl_predictor fetch          # pull last week's results
+python -m nfl_predictor fetch          # pull the latest results
 python -m nfl_predictor train          # retrain on the new data
-python -m nfl_predictor track record   # log this week's picks
+python -m nfl_predictor track record   # log the upcoming picks
 python -m nfl_predictor predict --week <N>   # see the picks
 # ...after games finish, enter the finals:
 python -m nfl_predictor track result --home KC --away DEN --score 24-17
@@ -166,7 +171,7 @@ to the other project and activate *its* environment:
 
 ```bash
 cd ../your-mls-project        # or wherever the MLS / MLB project lives
-source .venv/bin/activate     # activate that project's own environment
+source .venv/bin/activate     # activate that projects own environment
 ```
 
 That's the whole switch. Quick reference:
