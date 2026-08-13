@@ -24,12 +24,13 @@ MON 8:15P  DEN @ KC       KC -3.0      Chiefs          56.7%  ██████
 3. [Quick start](#3-quick-start-3-commands)
 4. [The commands, one by one](#4-the-commands-one-by-one)
 5. [Your weekly routine during the season](#5-your-weekly-routine-during-the-season)
-6. [How to read the board](#6-how-to-read-the-board)
-7. [How the model works](#7-how-the-model-works)
-8. [The 20 features](#8-the-20-features)
-9. [About preseason](#9-about-preseason)
-10. [Troubleshooting](#10-troubleshooting)
-11. [Project layout](#11-project-layout)
+6. [Exiting and switching to another project (MLS / MLB)](#6-exiting-and-switching-to-another-project-mls--mlb)
+7. [How to read the board](#7-how-to-read-the-board)
+8. [How the model works](#8-how-the-model-works)
+9. [The 20 features](#9-the-20-features)
+10. [About preseason](#10-about-preseason)
+11. [Troubleshooting](#11-troubleshooting)
+12. [Project layout](#12-project-layout)
 
 ---
 
@@ -137,7 +138,52 @@ python -m nfl_predictor track result --home KC --away DEN --score 24-17
 python -m nfl_predictor track board    # update RESULTS.md
 ```
 
-## 6. How to read the board
+## 6. Exiting and switching to another project (MLS / MLB)
+
+Each project (NFL, MLS, MLB) has its **own** `.venv` folder, so before you jump
+to another one you should exit this project's environment cleanly. Two things
+to know:
+
+**Stop whatever is running.** If a command is still running — most often the
+dashboard (`streamlit run dashboard.py`), which stays open on purpose — stop it
+by pressing:
+
+```
+Ctrl + C          (hold Ctrl, press C)
+```
+
+That returns you to the normal prompt. (One-shot commands like `predict` or
+`train` stop on their own when they finish — nothing to exit.)
+
+**Leave this project's environment.** When you're done, deactivate the venv:
+
+```bash
+deactivate
+```
+
+Your prompt loses the `(.venv)` tag — that's how you know you're out. Now switch
+to the other project and activate *its* environment:
+
+```bash
+cd ../your-mls-project        # or wherever the MLS / MLB project lives
+source .venv/bin/activate     # activate that project's own environment
+```
+
+That's the whole switch. Quick reference:
+
+| I want to… | Do this |
+|------------|---------|
+| Stop the dashboard / a stuck command | `Ctrl + C` |
+| Leave this project's environment | `deactivate` |
+| Am I in an environment? | Look for `(.venv)` at the start of your prompt |
+| Switch to the MLS/MLB project | `cd ../<that-project>` then `source .venv/bin/activate` |
+| Close the terminal entirely | `exit` (or just close the window) |
+
+> You never have to "uninstall" anything to switch. Each project keeps its
+> packages inside its own `.venv`, so they never clash — just `deactivate` one
+> and `activate` the next.
+
+## 7. How to read the board
 
 | Column | Meaning |
 |--------|---------|
@@ -151,7 +197,7 @@ Confidence near 50% is a coin-flip; the bar fills up as the model gets more
 sure. NFL is high-variance — even good models land around 65% accuracy over a
 full season, so treat these as informed leans, not guarantees.
 
-## 7. How the model works
+## 8. How the model works
 
 Three pieces work together:
 
@@ -169,7 +215,7 @@ Three pieces work together:
 The result on the held-out 2025 season: **~65% accuracy** and clearly better
 calibrated than Elo alone or a home-team baseline (~54%).
 
-## 8. The 20 features
+## 9. The 20 features
 
 | Group | Features |
 |-------|----------|
@@ -183,7 +229,7 @@ calibrated than Elo alone or a home-team baseline (~54%).
 EPA features are each team's form **going into** the game (shifted so a game
 never sees its own result — no cheating).
 
-## 9. About preseason
+## 10. About preseason
 
 **This model does not predict preseason games, and it can't** — nflverse
 carries no preseason data at all (both the schedule and the play-by-play are
@@ -194,7 +240,7 @@ real team strength (starters barely play), so training on them would only make
 the model worse. Preseason is the time to get this pipeline set up and tested —
 then the model goes to work once the regular season kicks off.
 
-## 10. Troubleshooting
+## 11. Troubleshooting
 
 | Problem | Fix |
 |---------|-----|
@@ -204,7 +250,7 @@ then the model goes to work once the regular season kicks off.
 | `fetch` fails with a 403 / Forbidden | Your network is blocking a data host. This project already routes around the one commonly-blocked host by using nflverse's GitHub mirror; if it still fails, try again on a different network. |
 | `ModuleNotFoundError` | Activate the venv (`source .venv/bin/activate`) and re-run `pip install -r requirements.txt`. |
 
-## 11. Project layout
+## 12. Project layout
 
 ```
 nfl-predictor/
