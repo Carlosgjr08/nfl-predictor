@@ -78,32 +78,39 @@ away), then close the window.
 Open a terminal in this folder and run:
 
 ```bash
-# 1. create an isolated environment (keeps this project separate)
 python3 -m venv .venv
-source .venv/bin/activate         # Windows: .venv\Scripts\activate
-
-# 2. install the dependencies
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
+
+- **Line 1** creates an isolated environment so this project's packages stay
+  separate. (On Windows the middle line is `.venv\Scripts\activate` instead.)
+- **Line 2** turns it on — your prompt gains a `(.venv)` tag.
+- **Line 3** installs everything the project needs.
 
 You only do this once. Every time you come back, just re-run
 `source .venv/bin/activate` first.
 
-> **Tip:** run the commands **one line at a time**, and skip the grey `#`
-> comment lines — they're just notes for you, not commands. If your prompt ever
-> changes to `quote>` or `dquote>` and seems stuck, press **`Control + C`** to
-> cancel and get back to the normal prompt.
+> **Important — paste one line at a time.** Copy a single line, press Enter, then
+> the next. Do **not** paste a whole block at once, and never include a grey
+> note. If your prompt ever changes to `quote>` or `dquote>` and seems stuck,
+> press **`Control + C`** to get back to normal.
 
 ## 3. Quick start (3 commands)
 
+Run these **one line at a time**:
+
 ```bash
-python -m nfl_predictor fetch      # download 23 seasons of data (~3 min, once)
-python -m nfl_predictor train      # train the model + print how good it is
-python -m nfl_predictor predict --week 1     # show Week 1 picks
+python -m nfl_predictor train
+python -m nfl_predictor predict --week 1
 ```
 
-> The repo already ships with the data (`data/*.csv`), so you can skip straight
-> to `train` and `predict` if you want. Run `fetch` when you want fresh results.
+- **`train`** builds the model and prints how good it is.
+- **`predict --week 1`** shows Week 1's picks.
+
+> The repo already ships with the data, so those two are all you need to see
+> picks. When you want the newest results later, run `python -m nfl_predictor
+> fetch` on its own first (it downloads a few minutes of data).
 
 ## 4. The commands, one by one
 
@@ -124,8 +131,10 @@ it weekly during the season to pull in the latest results.
 ### `train` — build the model
 ```bash
 python -m nfl_predictor train
-python -m nfl_predictor train --test-season 2024   # test on a different year
+python -m nfl_predictor train --test-season 2024
 ```
+
+(The second form tests against a different year.)
 Trains the Elo + logistic-regression ensemble and prints an **evaluation
 report**: how accurately it predicted a season it was *not* trained on, versus
 Elo alone and versus a naive "always pick the home team" baseline. The trained
@@ -133,17 +142,20 @@ model is saved to `models/` (recreated any time you re-run `train`).
 
 ### `predict` — get the picks
 ```bash
-python -m nfl_predictor predict --week 1        # one week of games
-python -m nfl_predictor predict --limit 16      # the next 16 upcoming games
-python -m nfl_predictor predict --home CIN --away DET   # a single matchup
+python -m nfl_predictor predict --week 1
+python -m nfl_predictor predict --limit 16
+python -m nfl_predictor predict --home CIN --away DET
 ```
 Prints the picks board. Team names are abbreviations (`CIN`, `KC`, `SF`…).
+- `--week 1` shows one week of games.
+- `--limit 16` shows the next 16 upcoming games.
+- `--home CIN --away DET` shows a single matchup.
 
 ### `track` — keep score over the season
 ```bash
-python -m nfl_predictor track record                        # log the upcoming picks
+python -m nfl_predictor track record
 python -m nfl_predictor track result --home KC --away DEN --score 24-17
-python -m nfl_predictor track board                         # refresh the scoreboard
+python -m nfl_predictor track board
 ```
 - **record** locks in the model's picks *before* games are played.
 - **result** enters a final score (home-away) and marks the pick right or wrong.
@@ -157,23 +169,32 @@ Opens the same board in your browser, with a week selector and confidence bars.
 
 ### One-shot helper
 ```bash
-bash run.sh          # fetch + train + show next picks
-bash run.sh 1        # fetch + train + show Week 1
+bash run.sh
+bash run.sh 1
 ```
+Runs fetch + train + predict in one go — no argument for the next picks, or a
+week number (like `1`) for that week.
 
 ## 5. Your weekly routine during the season
 
 Once real games start, do this once a week:
 
+**Before the games** — pull results, retrain, log and see this week's picks
+(replace the `1` with the current week number):
+
 ```bash
 source .venv/bin/activate
-python -m nfl_predictor fetch          # pull the latest results
-python -m nfl_predictor train          # retrain on the new data
-python -m nfl_predictor track record   # log the upcoming picks
-python -m nfl_predictor predict --week <N>   # see the picks
-# ...after games finish, enter the finals:
+python -m nfl_predictor fetch
+python -m nfl_predictor train
+python -m nfl_predictor track record
+python -m nfl_predictor predict --week 1
+```
+
+**After the games finish** — enter each final score, then refresh the board:
+
+```bash
 python -m nfl_predictor track result --home KC --away DEN --score 24-17
-python -m nfl_predictor track board    # update RESULTS.md
+python -m nfl_predictor track board
 ```
 
 ## 6. Exiting and switching to another project (MLS / MLB)
@@ -203,9 +224,12 @@ Your prompt loses the `(.venv)` tag — that's how you know you're out. Now swit
 to the other project and activate *its* environment:
 
 ```bash
-cd ../your-mls-project        # or wherever the MLS / MLB project lives
-source .venv/bin/activate     # activate that projects own environment
+cd ../your-mls-project
+source .venv/bin/activate
 ```
+
+(Swap `../your-mls-project` for wherever that project lives; the second line
+turns on *its* own environment.)
 
 That's the whole switch. Quick reference:
 
@@ -281,14 +305,17 @@ training) and, since the players who matter are resting, the picks lean almost
 entirely on carried-over Elo and last season's form. **Treat them as a UI
 rehearsal, not a forecast.**
 
-```bash
-# Option A — pull the live slate from ESPN (works on a normal home network):
-python -m nfl_predictor preseason --fetch
+**Option A — pull the live slate from ESPN** (works on a normal home network):
 
-# Option B — no network access to ESPN? Fill in the matchups yourself.
-python -m nfl_predictor preseason          # creates data/preseason_games.csv
-#   ...open that file, type in this week's games (away_team, home_team, date),
-#   then run it again:
+```bash
+python -m nfl_predictor preseason --fetch
+```
+
+**Option B — no ESPN access? Fill in the matchups yourself.** Run it once to
+create `data/preseason_games.csv`, open that file and type in this week's games
+(away team, home team, date), then run it again:
+
+```bash
 python -m nfl_predictor preseason
 ```
 
