@@ -17,7 +17,40 @@ MON 8:15P  DEN @ KC       KC -3.0      Chiefs          56.7%  ██████
 
 ---
 
+## ⭐ Start here every time you open Terminal
+
+You just opened Terminal and it says `cg@Carloss-MacBook-Air ~ %`. That `~`
+means you're in your **home** folder, not the project yet. Do these three
+lines, **one at a time**:
+
+```bash
+cd nfl-predictor
+source .venv/bin/activate
+python -m nfl_predictor predict --week 1
+```
+
+- **Line 1** walks into the project folder. Your prompt changes to end in
+  `nfl-predictor`.
+- **Line 2** turns on the environment. Your prompt gains a `(.venv)` tag at the
+  front — that's how you know it worked.
+- **Line 3** is just an example — run any command from
+  [section 4](#4-the-commands-one-by-one) here (`predict`, `preseason`,
+  `track`, `train`…).
+
+When you're finished for the day, type `deactivate` (the `(.venv)` tag goes
+away), then close the window.
+
+> **First time ever on this Mac?** You haven't downloaded the project yet — do
+> the one-time [Install](#2-install) steps first, then come back here.
+>
+> **Stuck at a `quote>` or `dquote>` prompt?** Press **`Control + C`** to
+> escape, and run the lines one at a time (skip the grey `#` comment lines).
+
+---
+
 ## Table of contents
+
+0. [⭐ Start here every time you open Terminal](#-start-here-every-time-you-open-terminal)
 
 1. [What you need first](#1-what-you-need-first)
 2. [Install](#2-install)
