@@ -37,6 +37,9 @@ def main() -> None:
     result.add_argument("--home", required=True, help="home team abbr")
     result.add_argument("--away", required=True, help="away team abbr")
     result.add_argument("--score", required=True, help="final as H-A, e.g. 24-17")
+    grade = track_sub.add_parser("grade", help="auto-score all played games "
+                                 "against real results (no manual entry)")
+    grade.add_argument("--week", type=int, help="only this week")
     track_sub.add_parser("board", help="refresh the live scoreboard")
 
     args = parser.parse_args()
@@ -68,6 +71,9 @@ def main() -> None:
             tracker.record(load_bundle())
         elif args.track_command == "result":
             tracker.enter_result(args.home, args.away, args.score)
+        elif args.track_command == "grade":
+            from .train import load_bundle
+            tracker.grade(load_bundle(), args.week)
         elif args.track_command == "board":
             tracker.board()
 

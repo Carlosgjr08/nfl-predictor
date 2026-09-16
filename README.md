@@ -152,6 +152,16 @@ Prints the picks board. Team names are abbreviations (`CIN`, `KC`, `SF`…).
 - `--home CIN --away DET` shows a single matchup.
 
 ### `track` — keep score over the season
+The easy way — after `fetch` has pulled the week's results, score everything
+automatically:
+```bash
+python -m nfl_predictor track grade --week 1
+```
+- **grade** reconstructs the model's pre-game pick for every *played* game and
+  scores it against the real final — no typing scores. Drop `--week 1` to grade
+  the whole season at once. Re-running is safe (it overwrites, never doubles).
+
+Or do it by hand:
 ```bash
 python -m nfl_predictor track record
 python -m nfl_predictor track result --home KC --away DEN --score 24-17
@@ -160,6 +170,8 @@ python -m nfl_predictor track board
 - **record** locks in the model's picks *before* games are played.
 - **result** enters a final score (home-away) and marks the pick right or wrong.
 - **board** rewrites `RESULTS.md`, a running scoreboard showing your record.
+
+All of them write `RESULTS.md`, a scoreboard that opens nicely on GitHub.
 
 ### Dashboard (in a web browser)
 ```bash
@@ -190,12 +202,15 @@ python -m nfl_predictor track record
 python -m nfl_predictor predict --week 1
 ```
 
-**After the games finish** — enter each final score, then refresh the board:
+**After the games finish** — pull the finals and let the model grade itself
+(one line, replacing `1` with the week that just ended):
 
 ```bash
-python -m nfl_predictor track result --home KC --away DEN --score 24-17
-python -m nfl_predictor track board
+python -m nfl_predictor fetch
+python -m nfl_predictor track grade --week 1
 ```
+
+Your running record shows up in `RESULTS.md`.
 
 ## 6. Exiting and switching to another project (MLS / MLB)
 

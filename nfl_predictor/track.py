@@ -16,8 +16,8 @@ from datetime import datetime
 
 import pandas as pd
 
-from .config import ROOT, PRED_LOG_CSV, MODELS_DIR, team_name
-from .features import upcoming_frame
+from .config import ROOT, PRED_LOG_CSV, MODELS_DIR, PREDICT_SEASON, team_name
+from .features import build_frame, upcoming_frame
 from .predict import _fmt_spread, _fmt_when, predict_frame
 
 RESULTS_MD = ROOT / "RESULTS.md"
@@ -117,6 +117,56 @@ def enter_result(home: str, away: str, score: str) -> None:
     mark = "✅ correct" if int(log.loc[i, "hit"]) else "❌ missed"
     print(f"Recorded {away} {as_}-{hs} {home}. Model picked "
           f"'{team_name(log.loc[i, 'predicted_winner'])}' — {mark}.")
+
+
+def grade(bundle: dict, week: int | None = None, season: int = PREDICT_SEASON) -> None:
+    """Auto-score every *already played* game: reconstruct the model's pre-game
+    pick from the data and compare it to the real final — no manual entry.
+
+    Uses the same pre-game features training does (Elo before the game, EPA form
+    shifted by one), so the pick is what the model *would* have called, with no
+    peeking at the result.
+    """
+    df = build_frame()
+    played = df[(df["home_win"].notna()) & (df["season"] == season)].copy()
+    if week is not None:
+        played = played[played["week"] == week]
+    if played.empty:
+        print(f"No finished {season}"
+              f"{f' week {week}' if week else ''} games in the data yet — "
+              "run `fetch` once the games have been played.")
+        return
+
+    preds = predict_frame(bundle, played)
+    rows = []
+    for row in preds.itertuples(index=False):
+        r = row._asdict()
+        hs, as_ = r["home_score"], r["away_score"]
+        winner = _winner_abbr(r["home_team"], r["away_team"], hs, as_)
+        rows.append({
+            "game_id": r["game_id"], "week": int(r["week"]),
+            "when": _fmt_when(r), "home_team": r["home_team"],
+            "away_team": r["away_team"], "spread": _fmt_spread(r),
+            "predicted_winner": r["winner_abbr"],
+            "p_home_win": round(float(r["p_home_win"]), 3),
+            "confidence": round(float(r["confidence"]), 3),
+            "actual_home_score": int(hs), "actual_away_score": int(as_),
+            "actual_winner": winner,
+            "hit": int(winner == r["winner_abbr"]),
+        })
+    graded = pd.DataFrame(rows)
+
+    # Replace any existing rows for these games, then add the freshly graded ones.
+    log = load_log()
+    log = log[~log["game_id"].astype(str).isin(graded["game_id"].astype(str))]
+    log = pd.concat([log, graded], ignore_index=True).sort_values(
+        ["week", "game_id"]).reset_index(drop=True)
+    save_log(log)
+    build_results_md(log)
+
+    s = _summary(graded)
+    print(f"Graded {len(graded)} game(s): {s['hits']}/{s['played']} correct "
+          f"({s['acc']:.0%}). Scoreboard -> {RESULTS_MD}")
 
 
 def _summary(log: pd.DataFrame) -> dict:
