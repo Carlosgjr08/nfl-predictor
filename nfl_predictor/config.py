@@ -9,6 +9,7 @@ MODELS_DIR = ROOT / "models"
 
 GAMES_CSV = DATA_DIR / "nfl_games.csv"          # raw schedule (all columns)
 TEAM_EPA_CSV = DATA_DIR / "nfl_team_epa.csv"    # per game, per team EPA
+INJURIES_CSV = DATA_DIR / "nfl_injuries.csv"    # weekly injury reports (context only)
 PRED_LOG_CSV = DATA_DIR / "nfl_predictions_log.csv"
 
 # 23 completed seasons to train on; 2026 is the season we predict.

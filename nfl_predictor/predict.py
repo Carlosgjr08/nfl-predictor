@@ -88,12 +88,18 @@ def render_board(df: pd.DataFrame, limit: int | None = None) -> str:
     return "\n".join(lines)
 
 
-def predict_upcoming(bundle: dict, limit=None, week=None) -> None:
+def predict_upcoming(bundle: dict, limit=None, week=None, injuries=False) -> None:
     frame = upcoming_frame()
     if week is not None:
         frame = frame[frame["week"] == int(week)]
     preds = predict_frame(bundle, frame)
     print(render_board(preds, limit))
+    if injuries:
+        from .injuries import render_injuries
+        shown = preds.sort_values(["gameday", "gametime", "game_id"])
+        if limit:
+            shown = shown.head(limit)
+        print("\n" + render_injuries(shown))
 
 
 def predict_matchup(bundle: dict, home: str, away: str) -> None:

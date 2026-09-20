@@ -145,11 +145,21 @@ model is saved to `models/` (recreated any time you re-run `train`).
 python -m nfl_predictor predict --week 1
 python -m nfl_predictor predict --limit 16
 python -m nfl_predictor predict --home CIN --away DET
+python -m nfl_predictor predict --week 1 --injuries
 ```
 Prints the picks board. Team names are abbreviations (`CIN`, `KC`, `SF`…).
 - `--week 1` shows one week of games.
 - `--limit 16` shows the next 16 upcoming games.
 - `--home CIN --away DET` shows a single matchup.
+- `--injuries` adds a key Out/Doubtful list under the board (run `fetch` first
+  to pull the reports). This is **context for you** — see the note below.
+
+### A note on injuries
+Injuries are **not** a model input. I tested a key-starter injury-load feature
+and it didn't improve accuracy — the betting line already prices injuries in, so
+the model feels them through `spread_line`. Rather than bolt on a feature that
+made the model slightly *worse*, `--injuries` just shows you who's hurt so you
+can sanity-check a pick yourself.
 
 ### `track` — keep score over the season
 The easy way — after `fetch` has pulled the week's results, score everything

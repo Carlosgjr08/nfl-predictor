@@ -22,6 +22,8 @@ def main() -> None:
     predict.add_argument("--week", type=int, help="only this week's games")
     predict.add_argument("--limit", type=int, default=None,
                          help="max games shown")
+    predict.add_argument("--injuries", action="store_true",
+                         help="also list key Out/Doubtful players per game")
 
     pre = sub.add_parser("preseason", help="exhibition board for preseason games "
                          "(never used for training)")
@@ -57,7 +59,7 @@ def main() -> None:
         if args.home and args.away:
             predict_matchup(bundle, args.home, args.away)
         else:
-            predict_upcoming(bundle, args.limit, args.week)
+            predict_upcoming(bundle, args.limit, args.week, args.injuries)
     elif args.command == "preseason":
         from .preseason import run
         from .train import load_bundle

@@ -3,6 +3,7 @@ models/
 
 # local / generated data
 data/preseason_games.csv
+data/nfl_injuries.csv
 data/nfl_predictions_log.csv
 RESULTS.md
 

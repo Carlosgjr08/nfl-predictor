@@ -10,8 +10,8 @@ Run:  python -m nfl_predictor fetch  [--seasons 2003 ... 2026]
 
 import pandas as pd
 
-from .config import (ALL_SEASONS, DATA_DIR, GAMES_CSV, SCHEDULE_COLUMNS,
-                     SCHEDULE_URL, TEAM_EPA_CSV)
+from .config import (ALL_SEASONS, DATA_DIR, GAMES_CSV, INJURIES_CSV,
+                     SCHEDULE_COLUMNS, SCHEDULE_URL, TEAM_EPA_CSV)
 
 
 def fetch_schedules() -> pd.DataFrame:
@@ -62,6 +62,24 @@ def fetch_team_epa(seasons) -> pd.DataFrame:
     return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
 
 
+def fetch_injuries(seasons) -> pd.DataFrame:
+    """Weekly injury reports (2009+). Shown as board context — not a model
+    feature, since the betting line already prices injuries in."""
+    import nfl_data_py as nfl
+
+    yrs = [y for y in seasons if y >= 2009]   # reports don't exist before 2009
+    if not yrs:
+        return pd.DataFrame()
+    try:
+        inj = nfl.import_injuries(yrs)
+    except Exception as exc:
+        print(f"    (injuries unavailable: {exc})")
+        return pd.DataFrame()
+    keep = ["season", "week", "team", "position", "full_name", "report_status"]
+    inj = inj[[c for c in keep if c in inj.columns]]
+    return inj[inj["report_status"].isin(["Out", "Doubtful", "Questionable"])].copy()
+
+
 def main(seasons=None) -> None:
     seasons = seasons or ALL_SEASONS
     DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -76,3 +94,8 @@ def main(seasons=None) -> None:
     epa = fetch_team_epa(seasons)
     epa.to_csv(TEAM_EPA_CSV, index=False)
     print(f"    {len(epa)} team-games -> {TEAM_EPA_CSV}")
+
+    print("==> Fetching injury reports (context)...")
+    inj = fetch_injuries(seasons)
+    inj.to_csv(INJURIES_CSV, index=False)
+    print(f"    {len(inj)} injury rows -> {INJURIES_CSV}")
